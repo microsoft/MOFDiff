@@ -1,0 +1,5 @@
+_target_: mofdiff.model.readout.CombinedGraphReadout
+node_dim: ${model.encoder.num_targets}
+out_dim: ${model.encoder.num_targets}
+num_heads: 8
+head_dim: 32

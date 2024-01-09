@@ -1,0 +1,11 @@
+_target_: mofdiff.model.gnn.GemNetOCEncoder
+otf_graph: ${model.otf_graph}
+num_blocks: 3
+radius: ${model.radius}
+max_neighbors: ${model.max_neighbors}
+hidden_dim: ${model.hidden_dim}
+num_targets: ${model.latent_dim}
+scale_file: ${oc.env:PROJECT_ROOT}/mofdiff/model/gemnet_oc/gemnet-oc.pt
+  
+defaults:
+  - readout: combined

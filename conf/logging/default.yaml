@@ -1,0 +1,22 @@
+# log frequency
+val_check_interval: 3
+progress_bar_refresh_rate: 10
+
+wandb:
+  name: ${expname}
+  project: mofdiff
+  entity: null
+  log_model: True
+  mode: 'online'
+  group: ${expname}
+
+tensorboard:
+  save_dir: ${oc.env:LOG_DIR}/tensorboard
+
+wandb_watch:
+  log: 'all'
+  log_freq: 5000
+
+lr_monitor:
+  logging_interval: "step"
+  log_momentum: False

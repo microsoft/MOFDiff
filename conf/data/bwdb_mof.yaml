@@ -1,0 +1,66 @@
+name: bwdb
+root_path: ${oc.env:DATASET_DIR}
+prop_list: 
+  - working_capacity_vacuum_swing [mmol/g]
+  - working_capacity_temperature_swing [mmol/g]
+logmod: true
+num_targets: 2
+use_type_mapper: false
+bb_encoder_path: ???
+
+lattice_scale_method: scale_length
+
+max_bbs: 20
+max_atoms: 200
+max_cps: 20
+otf_graph: false
+
+train_max_steps: 2000000
+early_stopping_patience: 1000
+teacher_forcing_max_epoch: 300
+patience: 50
+
+data_cache_path: ${oc.env:DATASET_DIR}
+load_cached: true
+save_cached: true
+
+datamodule:
+  _target_: mofdiff.data.datamodule.DataModule
+  bb_encoder_path: ${data.bb_encoder_path}
+
+  datasets:
+    train:
+      _target_: mofdiff.data.dataset.MOFDataset
+      name: ${data.name}_train
+      path: ${data.root_path}
+      prop_list: ${data.prop_list}
+      transforms: ${data.data_transforms}
+      max_bbs: ${data.max_bbs}
+      max_atoms: ${data.max_atoms}
+      max_cps: ${data.max_cps}
+      logmod: ${data.logmod}
+      split_file: ${oc.env:PROJECT_ROOT}/splits/train_split.txt
+
+    val:
+      _target_: mofdiff.data.dataset.MOFDataset
+      name: ${data.name}_val
+      path: ${data.root_path}
+      prop_list: ${data.prop_list}
+      transforms: ${data.data_transforms}
+      max_bbs: ${data.max_bbs}
+      max_atoms: ${data.max_atoms}
+      max_cps: ${data.max_cps}
+      logmod: ${data.logmod}
+      split_file: ${oc.env:PROJECT_ROOT}/splits/val_split.txt
+
+  num_workers:
+    train: 0
+    val: 0
+    test: 0
+
+  batch_size:
+    train: 128
+    val: 128
+    test: 128
+
+data_transforms: None

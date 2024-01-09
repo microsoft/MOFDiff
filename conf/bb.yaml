@@ -1,0 +1,28 @@
+expname: bwdb_bb
+workdir: ${oc.env:HYDRA_JOBS}/bb_models/${expname}
+config_for: bb
+
+core:
+  version: 0.0.1
+  tags:
+    - ${now:%Y-%m-%d}
+
+hydra:
+  run:
+    dir: ${oc.env:HYDRA_JOBS}/bb/${expname}/
+
+  sweep:
+    dir: ${oc.env:HYDRA_JOBS}/bb/${expname}/
+    subdir: ${hydra.job.num}_${hydra.job.id}
+
+  job:
+    env_set:
+      WANDB_START_METHOD: thread
+      WANDB_DIR: ${oc.env:WANDB_DIR}
+
+defaults:
+  - data: bwdb_bb
+  - logging: default
+  - model: bb
+  - optim: default
+  - train: default

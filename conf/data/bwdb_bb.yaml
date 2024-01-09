@@ -1,0 +1,50 @@
+name: bwdb_bb
+root_path: ${oc.env:DATASET_DIR}
+use_type_mapper: true
+
+# max num bbs
+max_bbs: 20
+max_atoms: 200
+max_cps: 20
+
+train_max_steps: 1500000
+early_stopping_patience: 100
+patience: 10
+
+data_cache_path: ${oc.env:DATASET_DIR}
+load_cached: true
+save_cached: true
+
+datamodule:
+  _target_: mofdiff.data.datamodule.DataModule
+
+  datasets:
+    train:
+      _target_: mofdiff.data.dataset.BBDataset
+      name: ${data.name}_train
+      path: ${data.root_path}
+      max_bbs: ${data.max_bbs}
+      max_atoms: ${data.max_atoms}
+      max_cps: ${data.max_cps}
+      split_file: ${oc.env:PROJECT_ROOT}/splits/train_split.txt
+
+    val:
+      _target_: mofdiff.data.dataset.BBDataset
+      name: ${data.name}_train
+      path: ${data.root_path}
+      max_bbs: ${data.max_bbs}
+      max_atoms: ${data.max_atoms}
+      max_cps: ${data.max_cps}
+      split_file: ${oc.env:PROJECT_ROOT}/splits/val_split.txt
+
+  num_workers:
+    train: 0
+    val: 0
+    test: 0
+
+  batch_size:
+    train: 1024
+    val: 1024
+    test: 1024
+
+data_transforms: None

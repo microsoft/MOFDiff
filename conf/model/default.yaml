@@ -1,0 +1,43 @@
+_target_: mofdiff.model.cg_diffusion.MOFDiff
+hidden_dim: 256
+latent_dim: 256
+fc_num_layers: 1
+max_bbs: ${data.max_bbs}
+max_atoms: ${data.max_atoms}
+max_cps: ${data.max_cps}
+cost_natom: 1.
+cost_coord: 1.
+cost_type: 1.
+cost_lattice: 1.
+cost_property: 1.
+beta: 0.01
+
+teacher_forcing_lattice: true
+teacher_forcing_max_epoch: ${data.teacher_forcing_max_epoch}
+
+otf_graph: False
+max_neighbors: 24
+radius: 4. # after normalization
+
+predict_property: True
+property_dim: ${data.num_targets}
+
+diffusion_step: 2000
+norm_x: 10.
+norm_h: 10.
+
+diffusion:
+  pos:
+    sigma_min: 0.001
+    sigma_max: 10.
+  type:
+    power: 2.
+    clipmax: 0.999
+
+# fourier time emb
+t_emb_dim: 64
+fourier_scale: 16
+
+defaults:
+  - encoder: gemnetoc
+  - decoder: gemnetoc

@@ -1,0 +1,7 @@
+_target_: mofdiff.model.gnn.GemNetOCDecoder
+num_blocks: 3
+hidden_dim: ${model.hidden_dim}
+latent_dim: ${model.latent_dim}
+max_neighbors: ${model.max_neighbors}
+radius: ${model.radius}
+scale_file: ${oc.env:PROJECT_ROOT}/mofdiff/model/gemnet_oc/gemnet-oc.pt

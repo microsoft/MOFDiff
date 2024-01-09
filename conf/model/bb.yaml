@@ -1,0 +1,19 @@
+_target_: mofdiff.model.bb_encoder.BBEncoder
+hidden_dim: 256
+latent_dim: 32
+project_dim: 128
+fc_num_layers: 2
+max_bbs: ${data.max_bbs}
+max_atoms: ${data.max_atoms}
+max_cps: ${data.max_cps}
+
+id_loss: contrastive
+temperature: 0.1
+cost_id: 5.
+cost_natom: 1.
+cost_ncp: 1.
+cost_d: 1.
+cost_z: 0.
+
+defaults:
+  - encoder: gemnetoc_bb

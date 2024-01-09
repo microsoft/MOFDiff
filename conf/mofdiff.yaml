@@ -1,0 +1,28 @@
+expname: bwdb_moff
+workdir: ${oc.env:HYDRA_JOBS}/mof_models/${expname}
+config_for: mof
+
+core:
+  version: 0.0.1
+  tags:
+    - ${now:%Y-%m-%d}
+
+hydra:
+  run:
+    dir: ${workdir}
+
+  sweep:
+    dir: ${workdir}
+    subdir: ${hydra.job.num}_${hydra.job.id}
+
+  job:
+    env_set:
+      WANDB_START_METHOD: thread
+      WANDB_DIR: ${oc.env:WANDB_DIR}
+
+defaults:
+  - data: bwdb_mof
+  - logging: default
+  - model: default
+  - optim: default
+  - train: default
