@@ -18,15 +18,15 @@ If you find this code useful, please consider referencing our paper:
 ## Table of Contents
 
 - [Installation](#installation)
-- [Dowlnload data](#download-data)
+- [Process data](#process-data)
 - [Training](#training)
-- [Generating MOF structures](#generating-mof-structures)
+- [Generating MOF structures](#generating-cg-mof-structures)
 - [Assemble all-atom MOFs](#assemble-all-atom-mofs)
-- [Relax MOFs](#relax-mofs)
+- [Relax MOFs](#relax-mofs-and-compute-structural-properties)
 
 ## Installation
 
-We recommend using [mamba](https://mamba.readthedocs.io/en/latest/) (much faster than conda) to install the dependencies. First install `mamba` following the intructions in the [mamba repository](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
+We recommend using [mamba](https://mamba.readthedocs.io/en/latest/) rather than conda to install the dependencies to increase installation speed. First install `mamba` following the intructions in the [mamba repository](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
 
 
 Install dependencies via `mamba`:
@@ -41,18 +41,36 @@ Then install `mofdiff` as a package:
 pip install -e .
 ```
 
-We use [MOFid](https://github.com/snurr-group/mofid) for preprocessing and analysis. Install MOFid following the instruction in the [MOFid repository](https://github.com/snurr-group/mofid/blob/master/compiling.md). The generative modeling part of this codebase does not depend on MOFid.
+We use [MOFid](https://github.com/snurr-group/mofid) for preprocessing and analysis. To perform these steps, install MOFid following the instruction in the [MOFid repository](https://github.com/snurr-group/mofid/blob/master/compiling.md). The generative modeling and MOF simulation portions of this codebase do not depend on MOFid.
 
-## Download data
+Configure the `.env` file to set correct paths to various directories, dependent on the desired functionality. An [example](./.env) `.env` file is provided in the repository.
 
-You can download the preprocessed data from [Zenodo](https://zenodo.org/uploads/10467288) (recommended). 
+For model training, please set the learning-related paths.
+- PROJECT_ROOT: the parent MOFDiff directory
+- DATASET_DIR: the directory containing the .lmdb file produced by processing the data 
+- LOG_DIR: the directory to which logs will by written
+- HYDRA_JOBS: the directory to which Hydra output will be written
+- WANDB_DIR: the directory to which WandB output will be written
 
-Alternatively, you can download the `BW-DB` raw data from [Materials Cloud](https://archive.materialscloud.org/record/2018.0016/v3) and preprocess the data with the following command (assuming the data is downloaded to `${raw_path}`, this step requires MOFid):
+For MOF relaxation and structureal property calculations, please additionally set the Zeo++ path.
+- ZEO_PATH: path to the Zeo++ "network" binary
+
+For GCMC simulations, please additionally set the GCMC-related paths.
+- RASPA_PATH: the RASPA2 parent directory
+- RASPA_SIM_PATH: path to the RASPA2 "simulate" binary
+- EGULP_PATH: path to the eGULP "egulp" binary
+- EGULP_PARAMETER_PATH: the directory containing the eGULP "MEPO.param" file
+
+## Process data
+
+You can download the preprocessed `BW-DB` data from [Zenodo](https://zenodo.org/uploads/10467288) (recommended).
+
+Alternatively, you can download the `BW-DB` raw data from [Materials Cloud](https://archive.materialscloud.org/record/2018.0016/v3) to `${raw_path}` and preprocess with the following command. This step requires MOFid.
 
 ```
-python preprocessing/extract_mofid.py --df_path ${raw_path}/all_MOFs_screening_data.csv --cif_path ${raw_path}/cifs --save_path ${raw_path}/mofid
-python preprocessing/preprocess.py --dataset_path
-python preprocessing/save_to_lmdb.py
+python mofdiff/preprocessing/extract_mofid.py --df_path ${raw_path}/all_MOFs_screening_data.csv --cif_path ${raw_path}/cifs --save_path ${raw_path}/mofid
+python mofdiff/preprocessing/preprocess.py --df_path ${raw_path}/all_MOFs_screening_data.csv --mofid_path ${raw_path}/mofid --save_path ${raw_path}/graphs
+python mofdiff/preprocessing/save_to_lmdb.py --graph_path ${raw_path}/graphs --save_path ${raw_path}/lmdbs
 ```
 
 The preprocessing inovlves 3 steps:
@@ -63,8 +81,6 @@ The preprocessing inovlves 3 steps:
 The entire preprocessing process for `BW-DB` may take several days (depending on the CPU/GPU resources).
 
 ## Training
-
-First, configure the `.env` file to set correct paths to various directories. An [example](./.env) `.env` file is provided in the repository.
 
 ### training the building block encoder
 
@@ -80,11 +96,11 @@ The default output directory is `${oc.env:HYDRA_JOBS}/bb/${expname}/`. `oc.env:H
 python mofdiff/scripts/train.py --config-name=bb expname=bwdb_bb_dim_64 model.latent_dim=64
 ```
 
-Logging is done with [wandb](https://wandb.ai/site) by default. You need to login to wandb with `wandb login` before training. The training logs will be saved to the wandb project `mofdiff`. You can also override the wandb project with command line arguments. You can also disable wandb logging by removing the `wandb` entry in the [config](./conf/logging/default.yaml).
+Logging is done with [wandb](https://wandb.ai/site) by default. You need to login to wandb with `wandb login` before training. The training logs will be saved to the wandb project `mofdiff`. You can also override the wandb project with command line arguments. You can also disable wandb logging by removing the `wandb` entry in the [config](./conf/logging/default.yaml) as demonstrated [here](./conf/logging/no_wandb_logging.yaml).
 
 ### training coarse-grained diffusion model for MOFs
 
-The output directory where the building block encoder is saved: `bb_encoder_path` is needed for training the diffusion model. With the building block encoder trained to convergence, train the CG diffusion model with the following command:
+The output directory where the building block encoder is saved: `bb_encoder_path` is needed for training the diffusion model. By default, this path is `${oc.env:HYDRA_JOBS}/bb/${expname}/`, as defined [above](#training-the-building-block-encoder). Train/validation splits are defined in [splits](./splits), with examples provided for BW-DB. With the building block encoder trained to convergence, train the CG diffusion model with the following command:
 
 ```
 python mofdiff/scripts/train.py data.bb_encoder_path=${bb_encoder_path}
@@ -96,16 +112,16 @@ For BW-DB, training the building block encoder takes roughly 3 days and training
 
 Pretrained models can be found [here](https://zenodo.org/record/10467288).
 
-With a trained CG diffusion model `${diffusion_model_path}`, generate random CG MOF structures with the following command:
+With a trained CG diffusion model `${diffusion_model_path}`, generate random CG MOF structures with the following command, where `${bb_cache_path}` is the path to the trained building encoder, as described [above](#training-the-building-block-encoder).
 
 ```
 python mofdiff/scripts/sample.py --model_path ${diffusion_model_path} --bb_cache_path ${bb_cache_path}
 ```
 
-`${bb_cache_path}` is the path to the building block embedding space, saved at the beginning of CG diffusion model training. To optimize MOF structures for a property (e.g., CO2 adsorption working capacity), use the following command:
+To optimize MOF structures for a property defined in BW-DB (e.g., CO2 adsorption working capacity) use the following command:
 
 ```
-python mofdiff/scripts/optimize.py --model_path ${diffusion_model_path} --bb_cache_path ${bb_cache_path} --data_path ${data_path}
+python mofdiff/scripts/optimize.py --model_path ${diffusion_model_path} --bb_cache_path ${bb_cache_path} --data_path ${data_path} --property "working_capacity_vacuum_swing [mmol/g]" --target_v 15.0
 ```
 
 Available arguments for `sample.py` and `optimize.py` can be found in the respective files. The generated CG MOF structures will be saved in `${sample_path}=${diffusion_model_path}/${sample_tag}` as `samples.pt`.
@@ -114,7 +130,7 @@ The CG structures generated with the diffusion model are not guaranteed to be re
 
 ## Assemble all-atom MOFs
 
-Assembled the CG MOF structures with the following command:
+Assemble all-atom MOF structures from the CG MOF structures with the following command:
 
 ```
 python mofdiff/scripts/assemble.py --input ${sample_path}/samples.pt
@@ -124,7 +140,7 @@ This command will assemble the CG MOF structures in `${sample_path}` and save th
 
 ## Relax MOFs and compute structural properties
 
-The assembled structures may not be physically plausible. These MOF structures are relaxed uses the UFF force field with LAMMPS. LAMMPS is already installed if you have followed the installation instructions in this README. The script for relaxing the MOF structures also compute structural properties (e.g., pore volume, surface area, etc.) with [Zeo++](https://www.zeoplusplus.org/download.html) and the mofids of the generated MOFs with [MOFid](https://github.com/snurr-group/mofid/tree/master). The respective packages should be installed following the instructions in the respective repositories, and the corresponding paths should be added to `.env` before running the following command. Each step should take no more than a few minutes to complete on a single CPU. We use multiprocessing to parallelize the computation.
+The assembled structures may not be physically plausible. These MOF structures are relaxed using the UFF force field with LAMMPS. LAMMPS has already been installed as part of the environment if you have followed the installation instructions in this README. The script for relaxing the MOF structures also compute structural properties (e.g., pore volume, surface area, etc.) with [Zeo++](https://www.zeoplusplus.org/download.html) and the mofids of the generated MOFs with [MOFid](https://github.com/snurr-group/mofid/tree/master). The respective packages should be installed following the instructions in the respective repositories, and the corresponding paths should be added to `.env` as outlined [above](#installation). Each step should take no more than a few minutes to complete on a single CPU. We use multiprocessing to parallelize the computation.
 
 Relax MOFs and compute structural properties with the following command:
 
@@ -137,7 +153,9 @@ This command will relax the assembled MOFs in `${sample_path}/cif` and save the 
 
 ## GCMC simulation for gas adsorption
 
-To run GCMC simulations, first install RASPA2 (simulation software) and eGULP (charge calculation software).
+### additional installation
+
+To run GCMC simulations, first install RASPA2 (simulation software) and eGULP (charge calculation software). The paths to both should additionally be added to `.env` as outlined [above](#installation).
 
 RASPA2 can be installed with `pip`:
 
@@ -159,11 +177,9 @@ mkdir /usr/local/bin/egulp && tar -xf egulp.tar -C /usr/local/bin/egulp
 cd /usr/local/bin/egulp/src && make && cd -
 ```
 
-Then, decompress the [force field parameters](./mofdiff/gcmc/UFF-TraPPe-scaled.tar) to the RASPA directory using the following commands (assuming RASPA2 installed in `RASPA_PATH=PYTHONPATH/site-packages/RASPA2` with `pip`):
+Finally, RASPA2 requires a set of forcefield parameters with which to run the simulations. To use our default simulation settings, copy the UFF parameter set from [ForceFields](https://github.com/lipelopesoliveira/ForceFields/tree/main) into the RASPA2 forcefield definition directory, typically located at `$RASPA_PATH/share/raspa/forcefield`.
 
-```
-tar -xf UFF-TraPPe-scaled.tar -C RASPA_PATH/share/raspa/forcefield/UFF-TraPPe
-```
+### running simulations
 
 Calculate charges for relaxed samples in `${sample_path}` with the following command:
 
@@ -175,7 +191,6 @@ This command will output cif files with charge information under `${sample_path}
 
 
 Run GCMC simulations with the following command:
-
 
 ```
 python mofdiff/scripts/gcmc_screen.py --input ${sample_path}/mepo_qeq_charges

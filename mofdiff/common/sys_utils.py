@@ -7,6 +7,7 @@ import dotenv
 import pytorch_lightning as pl
 from omegaconf import DictConfig, OmegaConf
 
+from mofdiff import __path__ as mofdiff_path
 
 # This is the function that will be called when the timeout happens
 def timeout_handler(signum, frame):
@@ -65,7 +66,7 @@ def get_env(env_name: str, default: Optional[str] = None) -> str:
     return env_value
 
 
-def load_envs(env_file: Optional[str] = ".env") -> None:
+def load_envs(env_file: Optional[str] = os.path.join(os.path.dirname(mofdiff_path[0]), ".env")) -> None:
     """
     Load all the environment variables defined in the `env_file`.
     This is equivalent to `. env_file` in bash.

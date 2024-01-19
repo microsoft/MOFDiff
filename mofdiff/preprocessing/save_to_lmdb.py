@@ -42,7 +42,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--save_path",
         type=str,
-        help="path to processed graphs",
+        help="output path for lmdb file",
     )
     args = parser.parse_args()
     save_to_lmdb(Path(args.graph_path), Path(args.save_path))

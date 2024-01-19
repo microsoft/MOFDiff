@@ -71,7 +71,7 @@ def extract_info_from_log(log_file_path):
 
 
 @timeout(7200)
-def initiate_lammps_with_force_field(cif_file, force_field="UFF4MOF"):
+def initiate_lammps_with_force_field(cif_file, force_field="UFF"):
     """
     This function initiates a lammps instance where energies and forces are calculated 
     using a force field implemented within lammps. The returned lammps instance can then be 
