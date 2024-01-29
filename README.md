@@ -23,6 +23,7 @@ If you find this code useful, please consider referencing our paper:
 - [Generating MOF structures](#generating-cg-mof-structures)
 - [Assemble all-atom MOFs](#assemble-all-atom-mofs)
 - [Relax MOFs](#relax-mofs-and-compute-structural-properties)
+- [GCMC simulations](#gcmc-simulation-for-gas-adsorption)
 
 ## Installation
 
@@ -45,17 +46,17 @@ We use [MOFid](https://github.com/snurr-group/mofid) for preprocessing and analy
 
 Configure the `.env` file to set correct paths to various directories, dependent on the desired functionality. An [example](./.env) `.env` file is provided in the repository.
 
-For model training, please set the learning-related paths.
+For [model training](#training), please set the learning-related paths.
 - PROJECT_ROOT: the parent MOFDiff directory
 - DATASET_DIR: the directory containing the .lmdb file produced by processing the data 
 - LOG_DIR: the directory to which logs will by written
 - HYDRA_JOBS: the directory to which Hydra output will be written
 - WANDB_DIR: the directory to which WandB output will be written
 
-For MOF relaxation and structureal property calculations, please additionally set the Zeo++ path.
+For [MOF relaxation and structureal property calculations](#relax-mofs-and-compute-structural-properties), please additionally set the Zeo++ path.
 - ZEO_PATH: path to the Zeo++ "network" binary
 
-For GCMC simulations, please additionally set the GCMC-related paths.
+For [GCMC simulations](#gcmc-simulation-for-gas-adsorption), please additionally set the GCMC-related paths.
 - RASPA_PATH: the RASPA2 parent directory
 - RASPA_SIM_PATH: path to the RASPA2 "simulate" binary
 - EGULP_PATH: path to the eGULP "egulp" binary
@@ -63,7 +64,7 @@ For GCMC simulations, please additionally set the GCMC-related paths.
 
 ## Process data
 
-You can download the preprocessed `BW-DB` data from [Zenodo](https://zenodo.org/uploads/10467288) (recommended).
+You can download the preprocessed `BW-DB` data from [Zenodo](https://zenodo.org/uploads/10467288) (recommended). To use the preprocessed data, please extract `bw_db.tar.gz` into `${oc.env:DATASET_DIR}`.
 
 Alternatively, you can download the `BW-DB` raw data from [Materials Cloud](https://archive.materialscloud.org/record/2018.0016/v3) to `${raw_path}` and preprocess with the following command. This step requires MOFid.
 
@@ -96,7 +97,7 @@ The default output directory is `${oc.env:HYDRA_JOBS}/bb/${expname}/`. `oc.env:H
 python mofdiff/scripts/train.py --config-name=bb expname=bwdb_bb_dim_64 model.latent_dim=64
 ```
 
-Logging is done with [wandb](https://wandb.ai/site) by default. You need to login to wandb with `wandb login` before training. The training logs will be saved to the wandb project `mofdiff`. You can also override the wandb project with command line arguments. You can also disable wandb logging by removing the `wandb` entry in the [config](./conf/logging/default.yaml) as demonstrated [here](./conf/logging/no_wandb_logging.yaml).
+Logging is done with [wandb](https://wandb.ai/site) by default. You need to login to wandb with `wandb login` before training. The training logs will be saved to the wandb project `mofdiff`. You can also override the wandb project with command line arguments or disable wandb logging by removing the `wandb` entry in the [config](./conf/logging/default.yaml) as demonstrated [here](./conf/logging/no_wandb_logging.yaml).
 
 ### training coarse-grained diffusion model for MOFs
 
@@ -110,15 +111,15 @@ For BW-DB, training the building block encoder takes roughly 3 days and training
 
 ## Generating CG MOF structures
 
-Pretrained models can be found [here](https://zenodo.org/record/10467288).
+Pretrained models can be found [here](https://zenodo.org/record/10467288). To use the pretrained models, please extract `pretrained.tar.gz` and `bb_emb_space.tar.gz` into `${oc.env:PROJECT_ROOT}/pretrained`.
 
-With a trained CG diffusion model `${diffusion_model_path}`, generate random CG MOF structures with the following command, where `${bb_cache_path}` is the path to the trained building encoder, as described [above](#training-the-building-block-encoder).
+With a trained CG diffusion model `${diffusion_model_path}`, generate random CG MOF structures with the following command, where `${bb_cache_path}` is the path to the trained building encoder `bb_emb_space.pt`, either sourced from the pretrained models or generated as described [above](#training-the-building-block-encoder).
 
 ```
 python mofdiff/scripts/sample.py --model_path ${diffusion_model_path} --bb_cache_path ${bb_cache_path}
 ```
 
-To optimize MOF structures for a property defined in BW-DB (e.g., CO2 adsorption working capacity) use the following command:
+To optimize MOF structures for a property defined in BW-DB (e.g., CO2 adsorption working capacity) use the following command, where `${data_path}` is the path to the processed data `data.lmdb`, either sourced from the pretrained models or generated as described [above](process-data).
 
 ```
 python mofdiff/scripts/optimize.py --model_path ${diffusion_model_path} --bb_cache_path ${bb_cache_path} --data_path ${data_path} --property "working_capacity_vacuum_swing [mmol/g]" --target_v 15.0
@@ -170,14 +171,14 @@ apt-get update
 apt-get install -yq libgsl0-dev pkg-config libxrender-dev
 ```
 
-Install [eGULP](https://github.com/danieleongari/egulp) following the instruction in the repository. The following commands install eGULP in `/usr/local/bin/egulp`:
+Install [eGULP](https://github.com/danieleongari/egulp) following the instruction in the repository. The following commands install eGULP in `/usr/local/bin/egulp-master`:
 
 ```
-mkdir /usr/local/bin/egulp && tar -xf egulp.tar -C /usr/local/bin/egulp
-cd /usr/local/bin/egulp/src && make && cd -
+unzip egulp-master.zip -d /usr/local/bin
+cd /usr/local/bin/egulp-master/src && make
 ```
 
-Finally, RASPA2 requires a set of forcefield parameters with which to run the simulations. To use our default simulation settings, copy the UFF parameter set from [ForceFields](https://github.com/lipelopesoliveira/ForceFields/tree/main) into the RASPA2 forcefield definition directory, typically located at `$RASPA_PATH/share/raspa/forcefield`.
+Finally, RASPA2 requires a set of forcefield parameters with which to run the simulations. To use our default simulation settings, copy the UFF parameter set from [ForceFields](https://github.com/lipelopesoliveira/ForceFields/tree/main) into the RASPA2 forcefield definition directory, typically located at `${oc.env:RASPA_PATH}/share/raspa/forcefield`.
 
 ### running simulations
 
@@ -197,6 +198,12 @@ python mofdiff/scripts/gcmc_screen.py --input ${sample_path}/mepo_qeq_charges
 ```
 
 The GCMC simulation results will be saved in `${sample_path}/gcmc/screening_results.json`.
+
+We have found that RASPA2 may occasionally have trouble reading input files as generated by python. If you encounter errors of the general form `Creating molecules for more systems than the maximum allowed` then please set the `rewrite_raspa_input` flag.
+
+```
+python mofdiff/scripts/gcmc_screen.py --input ${sample_path}/mepo_qeq_charges --rewrite_raspa_input
+```
 
 ## Acknowledgement
 
