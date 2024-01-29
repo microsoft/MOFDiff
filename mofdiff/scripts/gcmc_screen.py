@@ -10,7 +10,7 @@ from mofdiff.gcmc.simulation import working_capacity_vacuum_swing
 from p_tqdm import p_umap
 
 
-def main(input_dir, ncpu=24):
+def main(input_dir, ncpu=24, rewrite_raspa_input=False):
     rundir = Path(input_dir) / 'gcmc'
     rundir.mkdir(exist_ok=True)
     
@@ -42,7 +42,11 @@ def main(input_dir, ncpu=24):
                     info = 'atomic overlap'
                 else:
                     adsorption_info = working_capacity_vacuum_swing(
-                        str(ciffile), calc_charges=calc_charges, rundir=rundir)
+                        str(ciffile),
+                        calc_charges=calc_charges,
+                        rundir=rundir,
+                        rewrite_raspa_input=rewrite_raspa_input,
+                    )
                     info = 'success'
         except Exception as e:
             print(f'Error in {ciffile}: {e}')
@@ -58,5 +62,7 @@ def main(input_dir, ncpu=24):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', type=str)
+    parser.add_argument('--rewrite_raspa_input', action='store_true')
+    parser.set_defaults(rewrite_raspa_input=False)
     args = parser.parse_args()
-    main(args.input)
+    main(args.input, rewrite_raspa_input=args.rewrite_raspa_input)

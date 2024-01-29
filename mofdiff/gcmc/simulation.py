@@ -87,7 +87,7 @@ def extract_raspa_output(raspa_output, has_N2=False):
 
 @timeout(36000)
 def working_capacity_vacuum_swing(cif_file, calc_charges=True,
-                                  rundir='./temp'):
+                                  rundir='./temp', rewrite_raspa_input=False):
     random.seed(4)
     np.random.seed(4)
     # adsorption conditions
@@ -102,7 +102,10 @@ def working_capacity_vacuum_swing(cif_file, calc_charges=True,
 
     if calc_charges:
         gcmc_wrapper.calculate_mepo_qeq_charges(adsorbed)
-    gcmc_wrapper.run_gcmc_simulation(adsorbed)
+    gcmc_wrapper.run_gcmc_simulation(
+        adsorbed,
+        rewrite_raspa_input=rewrite_raspa_input,
+    )
 
     (
         adsorbed_CO2,
@@ -124,7 +127,10 @@ def working_capacity_vacuum_swing(cif_file, calc_charges=True,
     
     if calc_charges:
         gcmc_wrapper.calculate_mepo_qeq_charges(residual)
-    gcmc_wrapper.run_gcmc_simulation(residual)
+    gcmc_wrapper.run_gcmc_simulation(
+        residual,
+        rewrite_raspa_input=rewrite_raspa_input,
+    )
 
     residual_CO2, heat_of_adsorption_CO2_363 = extract_raspa_output(
         residual.raspa_output, has_N2=False

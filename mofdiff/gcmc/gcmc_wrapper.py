@@ -139,9 +139,6 @@ class gcmc_simulation:
 
     def write_out(self, output_path):
         with open(output_path, "w") as log_file:
-            # log_file.write("input file: " + self.sorbent_file + "\n")
-            # log_file.write("helium_void_fraction: " + str(self.helium_void_fraction) + "\n")
-            # log_file.write("helium_void_fraction: " + str(self.helium_void_fraction) + "\n")
             log_file.write(self.raspa_output)
 
 # assigns charges to the atoms in the simulation file using the MEPO Qeq charge equilibration method
@@ -192,20 +189,17 @@ def run_gcmc_simulation(
     initialization_cycles=0,
     equilibration_cycles=2000,
     production_cycles=2000,
-    forcefield="UFF-TraPPe",
+    forcefield="UFF",
     forcefield_cutoff=12,
     molecule_definitions="TraPPE",
     unit_cells=[0, 0, 0],
     cleanup=False,
+    rewrite_raspa_input=False,
 ):
     # copy cif file into parent RASPA folder
     shutil.copy(simulation.sorbent_file, raspa_path + "/share/raspa/structures/cif/")
     workdir = simulation.rundir / "raspa_output" / simulation.identifier
     workdir.mkdir(exist_ok=True, parents=True)
-
-    # create and enter temp directory
-    # os.mkdir(simulation.rundir / "raspa_output" / simulation.identifier)
-    # os.chdir(os.getcwd() + "/temp/raspa_output/" + simulation.identifier)
 
     sorbent_file = ".".join(simulation.sorbent_file.split("/")[-1].split(".")[:-1])
 
@@ -299,8 +293,14 @@ def run_gcmc_simulation(
     # write out raspa input file
     with open(workdir / "simulation.input", "w") as raspa_input:
         raspa_input.write(simulation.raspa_config)
+    
+    # optionally rewrite input file to avoid errors with RASPA reading it
+    if rewrite_raspa_input:
+        raspa_input_path = workdir / "simulation.input"
+        subprocess.run(["mv", raspa_input_path, f"{raspa_input_path}.orig"])
+        command = f"printf '%s\\n' \"$(cat {raspa_input_path}.orig)\" > {raspa_input_path}"
+        subprocess.Popen(command, shell = True)
 
-    # os.chdir(str(workdir))
     # run raspa simulation
     subprocess.run([raspa_sim_path, "simulation.input"], cwd=str(workdir))
 
