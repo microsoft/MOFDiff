@@ -24,6 +24,9 @@ If you find this code useful, please consider referencing our paper:
 - [Assemble all-atom MOFs](#assemble-all-atom-mofs)
 - [Relax MOFs](#relax-mofs-and-compute-structural-properties)
 - [GCMC simulations](#gcmc-simulation-for-gas-adsorption)
+- [Responsible AI FAQ](#responsible-ai-faq)
+- [Contributing](#contributing)
+- [Acknowledgement](#acknowledgement)
 
 ## Installation
 
@@ -204,6 +207,29 @@ We have found that RASPA2 may occasionally have trouble reading input files as g
 ```
 python mofdiff/scripts/gcmc_screen.py --input ${sample_path}/mepo_qeq_charges --rewrite_raspa_input
 ```
+
+## Responsible AI FAQ
+
+- What is MOFDiff?
+  - MOFDiff is a deep neural network that models metal organic framework (MOF) 3D structures.
+- What can MOFDiff do?
+  - MOFDiff allows you to train and sample from models that yield a coarse-grained representation of a MOF. It also includes functions for reassembly of an atomistic MOF structure from the coarse-grained representation and interaces to other molecular simulation software for evaluation of structural and gas separation properties.
+- What is/are MOFDiff’s intended use(s)?
+  - MOFDiff is intended for research purposes only, for the machine learning for porous materials community.
+- How was MOFDiff evaluated? What metrics are used to measure performance?
+  - MOFDiff was evaluated on the validity and novelty of the MOF structures sampled from MOFDiff. Additionally, structures optimized for CO2 adsorption were evaluated based on their simulated CO2 adsorption performance.
+- What are the limitations of MOFDiff? How can users minimize the impact of MOFDiff’s limitations when using the system?
+  - MOFDiff has not been tested by real-world experiments to see if the MOF structures it samples are achievable. MOFDiff should be used for research purposes only.
+- What operational factors and settings allow for effective and responsible use of MOFDiff?
+  - MOFDiff should be used for research purposes only.
+
+## Contributing
+
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+
+When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
+
+This project has adopted the Microsoft Open Source Code of Conduct. For more information see the Code of Conduct FAQ or contact opencode@microsoft.com with any additional questions or comments.
 
 ## Acknowledgement
 
