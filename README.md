@@ -27,7 +27,7 @@ If you find this code useful, please consider referencing our paper:
 
 ## Installation
 
-We recommend using [mamba](https://mamba.readthedocs.io/en/latest/) rather than conda to install the dependencies to increase installation speed. First install `mamba` following the intructions in the [mamba repository](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
+We recommend using [mamba](https://mamba.readthedocs.io/en/latest/) rather than conda to install the dependencies to increase installation speed. First install `mamba` following the intructions in the [mamba repository](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). (Note: a `reqirements.txt` mirror of `env.yml` is provided for compatibility with CI/CD; however, we do not recommend building the environment with `pip`.)
 
 
 Install dependencies via `mamba`:
