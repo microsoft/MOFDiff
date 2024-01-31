@@ -88,6 +88,8 @@ class DataModule(pl.LightningDataModule):
         self.get_scaler(scaler_path)
         self.type_mapper = None
 
+        self.prepare_data_per_node = True
+
     def get_type_mapper(self, type_mapper_path=None):
         if type_mapper_path is None:
             unique_atom_types = torch.unique(
@@ -112,7 +114,7 @@ class DataModule(pl.LightningDataModule):
                 self.datasets.train, bb_encoder=self.bb_encoder
             )
 
-            if "scaled_lattice" in self.train_dataset.cached_data[0].keys:
+            if "scaled_lattice" in self.train_dataset.cached_data[0].keys():
                 self.lattice_scaler = get_scaler_from_data_list(
                     self.train_dataset.cached_data, key="scaled_lattice"
                 )
