@@ -219,7 +219,10 @@ python mofdiff/scripts/gcmc_screen.py --input ${sample_path}/mepo_qeq_charges --
 - How was MOFDiff evaluated? What metrics are used to measure performance?
   - MOFDiff was evaluated on the validity and novelty of the MOF structures sampled from MOFDiff. Additionally, structures optimized for CO2 adsorption were evaluated based on their simulated CO2 adsorption performance.
 - What are the limitations of MOFDiff? How can users minimize the impact of MOFDiff’s limitations when using the system?
-  - MOFDiff has not been tested by real-world experiments to see if the MOF structures it samples are achievable. MOFDiff should be used for research purposes only.
+  - The provided pretrained models are specific to the BW-DB dataset.
+  - While MOFDiff may in principle be trained on arbitrary datasets of MOF structures, it has been minimally tested in this capacity. We enable users to train additional models for research purposes. Please see the training instructions and associated publication above.
+  - MOFDiff has not been tested by real-world experiments to see if the MOF structures it samples are achievable.
+  - MOFDiff should be used for research purposes only.
 - What operational factors and settings allow for effective and responsible use of MOFDiff?
   - MOFDiff should be used for research purposes only.
 
