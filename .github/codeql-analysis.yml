@@ -1,0 +1,7 @@
+language: python
+queries:
+  - python
+paths:
+  - mofdiff/
+pull_request:
+  base: main
