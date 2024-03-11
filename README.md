@@ -7,11 +7,13 @@
 If you find this code useful, please consider referencing our paper:
 
 ```
-@article{fu2023mofdiff,
-  title={MOFDiff: Coarse-grained Diffusion for Metal-Organic Framework Design},
-  author={Fu, Xiang and Xie, Tian and Rosen, Andrew S and Jaakkola, Tommi and Smith, Jake},
-  journal={arXiv preprint arXiv:2310.10732},
-  year={2023}
+@inproceedings{
+fu2024mofdiff,
+title={{MOFD}iff: Coarse-grained Diffusion for Metal-Organic Framework Design},
+author={Xiang Fu and Tian Xie and Andrew Scott Rosen and Tommi S. Jaakkola and Jake Allen Smith},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=0VBsoluxR2}
 }
 ```
 
