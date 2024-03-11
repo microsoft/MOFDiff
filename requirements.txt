@@ -17,7 +17,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 colorama==0.4.6
 contourpy==1.2.0
-cryptography==42.0.2
+cryptography==42.0.4
 cycler==0.12.1
 dill==0.3.8
 docker-pycreds==0.4.0
