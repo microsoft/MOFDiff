@@ -71,7 +71,7 @@ palettable==3.3.3
 pandas==2.2.0
 pathos==0.3.2
 pathspec==0.12.1
-pillow==10.2.0
+pillow==10.3.0
 pip==23.3.2
 platformdirs==4.2.0
 plotly==5.18.0
