@@ -69,7 +69,7 @@ For [GCMC simulations](#gcmc-simulation-for-gas-adsorption), please additionally
 
 ## Process data
 
-You can download the preprocessed `BW-DB` data from [Zenodo](https://zenodo.org/uploads/10467288) (recommended). To use the preprocessed data, please extract `bw_db.tar.gz` into `${oc.env:DATASET_DIR}`.
+You can download the preprocessed `BW-DB` data from [Zenodo](https://zenodo.org/records/10806179) (recommended). To use the preprocessed data, please extract `bw_db.tar.gz` into `${oc.env:DATASET_DIR}`.
 
 Alternatively, you can download the `BW-DB` raw data from [Materials Cloud](https://archive.materialscloud.org/record/2018.0016/v3) to `${raw_path}` and preprocess with the following command. This step requires MOFid.
 
@@ -116,7 +116,7 @@ For BW-DB, training the building block encoder takes roughly 3 days and training
 
 ## Generating CG MOF structures
 
-Pretrained models can be found [here](https://zenodo.org/record/10467288). To use the pretrained models, please extract `pretrained.tar.gz` and `bb_emb_space.tar.gz` into `${oc.env:PROJECT_ROOT}/pretrained`.
+Pretrained models can be found [here](https://zenodo.org/records/10806179). To use the pretrained models, please extract `pretrained.tar.gz` and `bb_emb_space.tar.gz` into `${oc.env:PROJECT_ROOT}/pretrained`.
 
 With a trained CG diffusion model `${diffusion_model_path}`, generate random CG MOF structures with the following command, where `${bb_cache_path}` is the path to the trained building encoder `bb_emb_space.pt`, either sourced from the pretrained models or generated as described [above](#training-the-building-block-encoder).
 
