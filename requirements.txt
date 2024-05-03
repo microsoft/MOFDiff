@@ -133,7 +133,7 @@ torch-scatter==2.1.1
 torch-sparse==0.6.17
 torchmetrics==0.7.3
 tornado==6.3.3
-tqdm==4.66.1
+tqdm==4.66.3
 typing_extensions==4.9.0
 tzdata==2023.4
 uncertainties==3.1.7
