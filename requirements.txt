@@ -138,7 +138,7 @@ typing_extensions==4.9.0
 tzdata==2023.4
 uncertainties==3.1.7
 unicodedata2==15.1.0
-urllib3==2.2.0
+urllib3==2.2.2
 wandb==0.16.2
 Werkzeug==3.0.1
 wheel==0.42.0
